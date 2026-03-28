@@ -33,18 +33,19 @@ const Sidebar = () => {
 
   const menuItems = [
     { name: "Dashboard", icon: LayoutDashboard, href: "/", roles: ["admin", "doctor", "member"] },
-    { name: "Cows", icon: Database, href: "/cows", roles: ["admin", "member","doctor"] },
-    { name: "Donors", icon: Heart, href: "/donors", roles: ["admin", "doctor", "member"] },
-    { name: "Visitors", icon: User, href: "/visitors", roles: ["admin", "doctor", "member"] },
-    { name: "Cow Food", icon: Wheat, href: "/cow-food", roles: ["admin", "member"] },
-    { name: "Medicine", icon: Pill, href: "/medicine", roles: ["admin", "doctor"] },
-    { name: "Medicine Usage", icon: ClipboardList, href: "/medicine-usage", roles: ["admin", "doctor", "member"] },
-    { name: "Treatment", icon: Stethoscope, href: "/treatment", roles: ["admin", "doctor"] },
+    // { name: "Cows", icon: Database, href: "/cows", roles: ["admin", "member","doctor"] },
+     { name: "Cows", icon: Database, href: "/cows", roles: ["member","doctor"] },
+    { name: "Donors", icon: Heart, href: "/donors", roles: [ "doctor", "member"] },
+    { name: "Visitors", icon: User, href: "/visitors", roles: [ "doctor", "member"] },
+    { name: "Cow Food", icon: Wheat, href: "/cow-food", roles: [ "member"] },
+    { name: "Medicine", icon: Pill, href: "/medicine", roles: [ "doctor"] },
+    { name: "Medicine Usage", icon: ClipboardList, href: "/medicine-usage", roles: ["doctor", "member"] },
+    { name: "Treatment", icon: Stethoscope, href: "/treatment", roles: [ "doctor"] },
     { name: "Doctors", icon: UserPlus, href: "/doctors", roles: ["admin"] },
-    { name: "Members", icon: Users, href: "/members", roles: ["admin"] },
-    { name: "My Blogs", icon: FileText, href: "/my-blogs", roles: ["admin", "member"] },
-    { name: "My Gallery", icon: ImageIcon, href: "/my-gallery", roles: ["admin", "member"] },
-    { name: "My Profile", icon: UserCircle, href: "/profile", roles: ["admin", "doctor", "member"] },
+    // { name: "Members", icon: Users, href: "/members", roles: ["admin"] },
+    // { name: "My Blogs", icon: FileText, href: "/my-blogs", roles: ["admin", "member"] },
+    // { name: "My Gallery", icon: ImageIcon, href: "/my-gallery", roles: ["admin", "member"] },
+    { name: "My Profile", icon: UserCircle, href: "/profile", roles: [ "doctor", "member"] },
   ].filter(item => !role || item.roles.includes(role));
 
   const handleLogout = () => {
