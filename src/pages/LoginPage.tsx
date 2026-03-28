@@ -93,23 +93,23 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <div className="flex justify-end">
+            {/* <div className="flex justify-end">
               <Link to="/forgot-password" className="text-sm text-primary hover:underline">
                 Forgot Password?
               </Link>
-            </div> 
+            </div>  */}
 
 
             <button type="submit" className="btn-primary w-full text-center disabled:opacity-50" disabled={loading}>
               {loading ? "Signing In..." : "Sign In"}
             </button>
 
-             <p className="text-center text-sm text-muted-foreground">
+             {/* <p className="text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
               <Link to="/register" className="text-primary font-medium hover:underline">
                 Register
               </Link>
-            </p> 
+            </p>  */}
           </form>
         </motion.div>
       </div>
