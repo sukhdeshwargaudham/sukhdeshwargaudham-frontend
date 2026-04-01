@@ -64,13 +64,13 @@ api.interceptors.response.use(
       }
 
       try {
-        const response = await axios.post('http://localhost:8000/api/auth/token/refresh/', {
+        const response = await axios.post('https://sukhdeshwardam-backends.onrender.com/api/auth/token/refresh/', {
           refresh: refreshToken,
         });
 
         const newAccessToken = response.data.access;
         localStorage.setItem('access_token', newAccessToken);
-        
+
         // Update header for current and subsequent requests
         api.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
