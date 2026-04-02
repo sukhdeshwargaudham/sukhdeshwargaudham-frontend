@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { fetchMedicines, addMedicine, updateMedicine, deleteMedicine, clearMedicineMessage, clearMedicineError } from "@/redux/medicineSlice";
+import { fetchMedicalStores } from "@/redux/medicalStoreSlice";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
@@ -62,6 +63,7 @@ interface MedicineFormData {
 const MedicineManagement = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { medicines, loading: isLoading, error, message } = useSelector((state: RootState) => state.medicine);
+  const { medicalStores } = useSelector((state: RootState) => state.medicalStore);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
@@ -75,6 +77,7 @@ const MedicineManagement = () => {
 
   useEffect(() => {
     dispatch(fetchMedicines());
+    dispatch(fetchMedicalStores());
   }, [dispatch]);
 
   useEffect(() => {
@@ -87,6 +90,13 @@ const MedicineManagement = () => {
       dispatch(clearMedicineError());
     }
   }, [message, error, dispatch]);
+
+  const onStoreSelect = (storeName: string) => {
+    const selectedStore = medicalStores.find(s => s.name === storeName);
+    if (selectedStore) {
+      setValue("store_phone_number", selectedStore.contact_no || "");
+    }
+  };
 
   const openModal = (medicine?: Medicine) => {
     if (medicine) {
@@ -597,7 +607,24 @@ const MedicineManagement = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-bold mb-1.5 flex items-center gap-2"><User className="w-4 h-4 text-primary" /> Store/Staff</label>
-                      <input {...register("stia_name", { required: true })} className="w-full px-4 py-2 rounded-lg border border-border bg-background" />
+                      <div className="relative">
+                        <select 
+                          {...register("stia_name", { required: true })} 
+                          onChange={(e) => {
+                            register("stia_name").onChange(e);
+                            onStoreSelect(e.target.value);
+                          }}
+                          className="w-full px-4 py-2 rounded-lg border border-border bg-background appearance-none"
+                        >
+                          <option value="">Select Store</option>
+                          {medicalStores.map(store => (
+                            <option key={store.id} value={store.name}>{store.name}</option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-muted-foreground">
+                          <Search className="h-4 w-4" />
+                        </div>
+                      </div>
                     </div>
                   </div>
 

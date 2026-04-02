@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { fetchSymptoms, addSymptom, deleteSymptom, clearSymptomMessage, clearSymptomError } from "@/redux/symptomSlice";
 import { fetchDiseases, addDisease, deleteDisease, clearDiseaseMessage, clearDiseaseError } from "@/redux/diseaseSlice";
+import { fetchMedicalStores, addMedicalStore, deleteMedicalStore, clearMedicalStoreMessage, clearMedicalStoreError } from "@/redux/medicalStoreSlice";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
@@ -19,15 +20,21 @@ const MedicalSettings = () => {
   
   const { symptoms, loading: sympLoading, message: sympMsg, error: sympErr } = useSelector((state: RootState) => state.symptom);
   const { diseases, loading: disLoading, message: disMsg, error: disErr } = useSelector((state: RootState) => state.disease);
+  const { medicalStores, loading: storeLoading, message: storeMsg, error: storeErr } = useSelector((state: RootState) => state.medicalStore);
 
   const [newSymptom, setNewSymptom] = useState("");
   const [newDisease, setNewDisease] = useState("");
+  const [newStore, setNewStore] = useState("");
+  const [newStoreContact, setNewStoreContact] = useState("");
+  
   const [sympSearch, setSympSearch] = useState("");
   const [disSearch, setDisSearch] = useState("");
+  const [storeSearch, setStoreSearch] = useState("");
 
   useEffect(() => {
     dispatch(fetchSymptoms());
     dispatch(fetchDiseases());
+    dispatch(fetchMedicalStores());
   }, [dispatch]);
 
   useEffect(() => {
@@ -54,6 +61,19 @@ const MedicalSettings = () => {
     }
   }, [disMsg, disErr, dispatch]);
 
+  useEffect(() => {
+    if (storeMsg) {
+      toast.success(storeMsg);
+      dispatch(clearMedicalStoreMessage());
+      setNewStore("");
+      setNewStoreContact("");
+    }
+    if (storeErr) {
+      toast.error(storeErr);
+      dispatch(clearMedicalStoreError());
+    }
+  }, [storeMsg, storeErr, dispatch]);
+
   const handleAddSymptom = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSymptom.trim()) return;
@@ -64,6 +84,12 @@ const MedicalSettings = () => {
     e.preventDefault();
     if (!newDisease.trim()) return;
     dispatch(addDisease({ name: newDisease.trim() }));
+  };
+
+  const handleAddStore = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newStore.trim()) return;
+    dispatch(addMedicalStore({ name: newStore.trim(), contact_no: newStoreContact.trim() }));
   };
 
   const handleDeleteSymptom = async (id: string, name: string) => {
@@ -90,12 +116,25 @@ const MedicalSettings = () => {
     if (result.isConfirmed) dispatch(deleteDisease(id));
   };
 
+  const handleDeleteStore = async (id: string, name: string) => {
+    const result = await MySwal.fire({
+      title: "Delete Medical Store?",
+      text: `Are you sure you want to remove "${name}" from the list?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      confirmButtonText: "Yes, delete",
+    });
+    if (result.isConfirmed) dispatch(deleteMedicalStore(id));
+  };
+
   const filteredSymptoms = symptoms.filter(s => s.name.toLowerCase().includes(sympSearch.toLowerCase()));
   const filteredDiseases = diseases.filter(d => d.name.toLowerCase().includes(disSearch.toLowerCase()));
+  const filteredStores = medicalStores.filter(s => s.name.toLowerCase().includes(storeSearch.toLowerCase()) || (s.contact_no && s.contact_no.toLowerCase().includes(storeSearch.toLowerCase())));
 
   return (
     <Layout>
-      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         
         {/* Header Section */}
         <div className="bg-background/80 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-border/50 shadow-2xl relative overflow-hidden">
@@ -109,17 +148,17 @@ const MedicalSettings = () => {
                 Medical Settings
               </h1>
               <p className="text-muted-foreground mt-1 sm:mt-2 font-medium text-base sm:text-lg italic line-clamp-2">
-                Manage the master list of symptoms and diseases for cattle treatments
+                Manage the master list of symptoms, diseases, and medical stores
               </p>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
           
           {/* Symptoms Column */}
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-            <div className="bg-background/60 backdrop-blur-md p-6 rounded-3xl border border-border/50 shadow-xl space-y-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            <div className="bg-background/60 backdrop-blur-md p-6 rounded-3xl border border-border/50 shadow-xl space-y-6 h-full flex flex-col">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-orange-500/10 rounded-xl">
@@ -160,7 +199,7 @@ const MedicalSettings = () => {
                 />
               </div>
 
-              <div className="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
+              <div className="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar space-y-2 flex-1">
                 <AnimatePresence>
                   {filteredSymptoms.map((s) => (
                     <motion.div 
@@ -193,8 +232,8 @@ const MedicalSettings = () => {
           </motion.div>
 
           {/* Diseases Column */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
-            <div className="bg-background/60 backdrop-blur-md p-6 rounded-3xl border border-border/50 shadow-xl space-y-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }} className="space-y-6">
+            <div className="bg-background/60 backdrop-blur-md p-6 rounded-3xl border border-border/50 shadow-xl space-y-6 h-full flex flex-col">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-500/10 rounded-xl">
@@ -235,7 +274,7 @@ const MedicalSettings = () => {
                 />
               </div>
 
-              <div className="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
+              <div className="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar space-y-2 flex-1">
                 <AnimatePresence>
                   {filteredDiseases.map((d) => (
                     <motion.div 
@@ -260,6 +299,97 @@ const MedicalSettings = () => {
                   {filteredDiseases.length === 0 && (
                     <div className="text-center py-12 text-muted-foreground italic font-medium bg-muted/10 rounded-2xl border border-dashed border-border">
                       No diseases found...
+                    </div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Medical Stores Column */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.2 } }} className="space-y-6">
+            <div className="bg-background/60 backdrop-blur-md p-6 rounded-3xl border border-border/50 shadow-xl space-y-6 h-full flex flex-col">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-emerald-500/10 rounded-xl">
+                    <Plus className="w-6 h-6 text-emerald-500" />
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-foreground">Medical Stores</h2>
+                </div>
+                <span className="text-[10px] sm:text-xs font-bold px-3 py-1 bg-emerald-500/10 text-emerald-600 rounded-full border border-emerald-500/20 uppercase tracking-widest w-fit">
+                  Total: {medicalStores.length}
+                </span>
+              </div>
+              <form onSubmit={handleAddStore} className="space-y-2">
+                <input 
+                  type="text" 
+                  value={newStore}
+                  onChange={(e) => setNewStore(e.target.value)}
+                  placeholder="Store Name..." 
+                  className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm" 
+                />
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input 
+                    type="text" 
+                    value={newStoreContact}
+                    onChange={(e) => setNewStoreContact(e.target.value)}
+                    placeholder="Contact No..." 
+                    className="flex-1 px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm" 
+                  />
+                  <button 
+                    type="submit"
+                    disabled={storeLoading || !newStore.trim()}
+                    className="px-5 py-2.5 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {storeLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+                    <span className="font-bold text-sm">Add</span>
+                  </button>
+                </div>
+              </form>
+
+              <div className="relative group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-emerald-500 transition-colors" />
+                <input
+                  type="text"
+                  placeholder="Filter stores..."
+                  value={storeSearch}
+                  onChange={(e) => setStoreSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-muted/30 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all"
+                />
+              </div>
+
+              <div className="max-h-[432px] overflow-y-auto pr-2 custom-scrollbar space-y-2 flex-1">
+                <AnimatePresence>
+                  {filteredStores.map((s) => (
+                    <motion.div 
+                      key={s.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="flex items-start justify-between p-4 bg-muted/20 border border-border/50 rounded-2xl hover:bg-muted/40 transition-all group"
+                    >
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <Activity className="w-4 h-4 text-emerald-400" />
+                          <span className="font-bold text-foreground leading-tight">{s.name}</span>
+                        </div>
+                        {s.contact_no && (
+                          <div className="flex items-center gap-2 pl-6">
+                            <span className="text-[10px] font-bold text-muted-foreground italic">{s.contact_no}</span>
+                          </div>
+                        )}
+                      </div>
+                      <button 
+                        onClick={() => handleDeleteStore(s.id, s.name)} 
+                        className="p-2 text-destructive sm:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 rounded-lg"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </motion.div>
+                  ))}
+                  {filteredStores.length === 0 && (
+                    <div className="text-center py-12 text-muted-foreground italic font-medium bg-muted/10 rounded-2xl border border-dashed border-border">
+                      No medical stores found...
                     </div>
                   )}
                 </AnimatePresence>

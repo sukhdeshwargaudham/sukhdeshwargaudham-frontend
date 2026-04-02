@@ -11,6 +11,7 @@ import visitorReducer from './visitorSlice';
 import donorReducer from './donorSlice';
 import symptomReducer from './symptomSlice';
 import diseaseReducer from './diseaseSlice';
+import medicalStoreReducer from './medicalStoreSlice';
 
 export const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ export const store = configureStore({
     donor: donorReducer,
     symptom: symptomReducer,
     disease: diseaseReducer,
+    medicalStore: medicalStoreReducer,
   },
 });
 
