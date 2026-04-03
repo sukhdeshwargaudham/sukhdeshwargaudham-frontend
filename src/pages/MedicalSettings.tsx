@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
-import { 
+import {
   Stethoscope, Thermometer, Plus, Trash2, Loader2, Search, Activity, ShieldAlert
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,7 +17,7 @@ const MySwal = withReactContent(Swal);
 
 const MedicalSettings = () => {
   const dispatch = useDispatch<AppDispatch>();
-  
+
   const { symptoms, loading: sympLoading, message: sympMsg, error: sympErr } = useSelector((state: RootState) => state.symptom);
   const { diseases, loading: disLoading, message: disMsg, error: disErr } = useSelector((state: RootState) => state.disease);
   const { medicalStores, loading: storeLoading, message: storeMsg, error: storeErr } = useSelector((state: RootState) => state.medicalStore);
@@ -26,7 +26,7 @@ const MedicalSettings = () => {
   const [newDisease, setNewDisease] = useState("");
   const [newStore, setNewStore] = useState("");
   const [newStoreContact, setNewStoreContact] = useState("");
-  
+
   const [sympSearch, setSympSearch] = useState("");
   const [disSearch, setDisSearch] = useState("");
   const [storeSearch, setStoreSearch] = useState("");
@@ -135,7 +135,7 @@ const MedicalSettings = () => {
   return (
     <Layout>
       <div className="p-4 sm:p-6 lg:p-8 max-w-[1600px] mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        
+
         {/* Header Section */}
         <div className="bg-background/80 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-border/50 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -155,7 +155,7 @@ const MedicalSettings = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          
+
           {/* Symptoms Column */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className="bg-background/60 backdrop-blur-md p-6 rounded-3xl border border-border/50 shadow-xl space-y-6 h-full flex flex-col">
@@ -171,14 +171,14 @@ const MedicalSettings = () => {
                 </span>
               </div>
               <form onSubmit={handleAddSymptom} className="flex flex-col sm:flex-row gap-2">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={newSymptom}
                   onChange={(e) => setNewSymptom(e.target.value)}
-                  placeholder="Enter new symptom..." 
-                  className="flex-1 px-4 py-3 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm" 
+                  placeholder="Enter new symptom..."
+                  className="flex-1 px-4 py-3 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm"
                 />
-                <button 
+                <button
                   type="submit"
                   disabled={sympLoading || !newSymptom.trim()}
                   className="px-5 py-3 sm:py-0 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/25 disabled:opacity-50 flex items-center justify-center gap-2"
@@ -202,7 +202,7 @@ const MedicalSettings = () => {
               <div className="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar space-y-2 flex-1">
                 <AnimatePresence>
                   {filteredSymptoms.map((s) => (
-                    <motion.div 
+                    <motion.div
                       key={s.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -213,8 +213,8 @@ const MedicalSettings = () => {
                         <Activity className="w-4 h-4 text-orange-400" />
                         <span className="font-bold text-foreground">{s.name}</span>
                       </div>
-                      <button 
-                        onClick={() => handleDeleteSymptom(s.id, s.name)} 
+                      <button
+                        onClick={() => handleDeleteSymptom(s.id, s.name)}
                         className="p-2 text-destructive sm:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 rounded-lg"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -246,14 +246,14 @@ const MedicalSettings = () => {
                 </span>
               </div>
               <form onSubmit={handleAddDisease} className="flex flex-col sm:flex-row gap-2">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={newDisease}
                   onChange={(e) => setNewDisease(e.target.value)}
-                  placeholder="Enter new disease..." 
-                  className="flex-1 px-4 py-3 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm" 
+                  placeholder="Enter new disease..."
+                  className="flex-1 px-4 py-3 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm"
                 />
-                <button 
+                <button
                   type="submit"
                   disabled={disLoading || !newDisease.trim()}
                   className="px-5 py-3 sm:py-0 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50 flex items-center justify-center gap-2"
@@ -277,7 +277,7 @@ const MedicalSettings = () => {
               <div className="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar space-y-2 flex-1">
                 <AnimatePresence>
                   {filteredDiseases.map((d) => (
-                    <motion.div 
+                    <motion.div
                       key={d.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -288,8 +288,8 @@ const MedicalSettings = () => {
                         <Activity className="w-4 h-4 text-blue-400" />
                         <span className="font-bold text-foreground">{d.name}</span>
                       </div>
-                      <button 
-                        onClick={() => handleDeleteDisease(d.id, d.name)} 
+                      <button
+                        onClick={() => handleDeleteDisease(d.id, d.name)}
                         className="p-2 text-destructive sm:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 rounded-lg"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -321,22 +321,22 @@ const MedicalSettings = () => {
                 </span>
               </div>
               <form onSubmit={handleAddStore} className="space-y-2">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={newStore}
                   onChange={(e) => setNewStore(e.target.value)}
-                  placeholder="Store Name..." 
-                  className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm" 
+                  placeholder="Store Name..."
+                  className="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm"
                 />
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={newStoreContact}
                     onChange={(e) => setNewStoreContact(e.target.value)}
-                    placeholder="Contact No..." 
-                    className="flex-1 px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm" 
+                    placeholder="Contact No..."
+                    className="flex-1 px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm"
                   />
-                  <button 
+                  <button
                     type="submit"
                     disabled={storeLoading || !newStore.trim()}
                     className="px-5 py-2.5 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/25 disabled:opacity-50 flex items-center justify-center gap-2"
@@ -361,7 +361,7 @@ const MedicalSettings = () => {
               <div className="max-h-[432px] overflow-y-auto pr-2 custom-scrollbar space-y-2 flex-1">
                 <AnimatePresence>
                   {filteredStores.map((s) => (
-                    <motion.div 
+                    <motion.div
                       key={s.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -379,8 +379,8 @@ const MedicalSettings = () => {
                           </div>
                         )}
                       </div>
-                      <button 
-                        onClick={() => handleDeleteStore(s.id, s.name)} 
+                      <button
+                        onClick={() => handleDeleteStore(s.id, s.name)}
                         className="p-2 text-destructive sm:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 rounded-lg"
                       >
                         <Trash2 className="w-4 h-4" />

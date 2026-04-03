@@ -36,6 +36,7 @@ interface Cow {
   id: string;
   token_no: string;
   caller_of_rescue: string;
+  symptoms?: string;
 }
 
 interface TreatmentFormData {
@@ -74,10 +75,23 @@ const TreatmentPage = () => {
     .sort((a, b) => new Date(b.checkup_date).getTime() - new Date(a.checkup_date).getTime())[0];
 
   useEffect(() => {
-    if (!editingTreatment && selectedCowId && previousTreatment) {
-      setValue("symptoms", previousTreatment.symptoms);
+    if (!editingTreatment && selectedCowId) {
+      if (previousTreatment) {
+        // High priority: last checkup data
+        setValue("symptoms", previousTreatment.symptoms);
+        if (previousTreatment.medicine) {
+          setSelectedMedicines(previousTreatment.medicine.split("; ").filter(m => m));
+        }
+      } else {
+        // Fallback: look for the cow entry record (initial rescue symptoms)
+        const selectedCow = cows.find(c => String(c.id) === String(selectedCowId) || c.token_no.toLowerCase() === String(selectedCowId).toLowerCase());
+        if (selectedCow && selectedCow.symptoms) {
+          setValue("symptoms", selectedCow.symptoms);
+          setSelectedMedicines([]); // No medicines yet for new cows
+        }
+      }
     }
-  }, [selectedCowId, editingTreatment, previousTreatment, setValue]);
+  }, [selectedCowId, editingTreatment, previousTreatment, cows, setValue]);
 
   useEffect(() => {
     dispatch(fetchTreatments());

@@ -549,9 +549,9 @@ const MedicineManagement = () => {
                   {/* watch medicine_type and show quantity if Bottle */}
                   <AnimatePresence mode="wait">
                     {(watch as any)("medicine_type") === "Bottle" && (
-                      <motion.div 
-                        initial={{ opacity: 0, height: 0 }} 
-                        animate={{ opacity: 1, height: "auto" }} 
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         className="grid grid-cols-2 gap-4 overflow-hidden"
                       >
@@ -594,10 +594,33 @@ const MedicineManagement = () => {
                       <label className="block text-sm font-bold mb-1.5 flex items-center gap-2"><Calendar className="w-4 h-4 text-primary" /> Expiry Date <span className="text-xs font-normal text-muted-foreground">(optional)</span></label>
                       <input type="date" {...register("expiry_date")} className="w-full px-4 py-2 rounded-lg border border-border bg-background" />
                     </div>
+
+
                     <div>
-                      <label className="block text-sm font-bold mb-1.5 flex items-center gap-2"><Phone className="w-4 h-4 text-primary" /> Store Phone</label>
-                      <input {...register("store_phone_number")} placeholder="e.g. +91 987..." className="w-full px-4 py-2 rounded-lg border border-border bg-background" />
+                      <label className="block text-sm font-bold mb-1.5 flex items-center gap-2"><User className="w-4 h-4 text-primary" /> Store/Staff</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          list="store-suggestions"
+                          {...register("stia_name", { required: "Required" })}
+                          onChange={(e) => {
+                            register("stia_name").onChange(e);
+                            onStoreSelect(e.target.value);
+                          }}
+                          placeholder="Select or type store name..."
+                          className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        />
+                        <datalist id="store-suggestions">
+                          {medicalStores.map(store => (
+                            <option key={store.id} value={store.name} />
+                          ))}
+                        </datalist>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground">
+                          <Search className="h-4 w-4" />
+                        </div>
+                      </div>
                     </div>
+
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -605,11 +628,11 @@ const MedicineManagement = () => {
                       <label className="block text-sm font-bold mb-1.5 flex items-center gap-2"><Hash className="w-4 h-4 text-primary" /> Bill Number</label>
                       <input {...register("bill_number", { required: true })} className="w-full px-4 py-2 rounded-lg border border-border bg-background" />
                     </div>
-                    <div>
+                    {/* <div>
                       <label className="block text-sm font-bold mb-1.5 flex items-center gap-2"><User className="w-4 h-4 text-primary" /> Store/Staff</label>
                       <div className="relative">
-                        <select 
-                          {...register("stia_name", { required: true })} 
+                        <select
+                          {...register("stia_name", { required: true })}
                           onChange={(e) => {
                             register("stia_name").onChange(e);
                             onStoreSelect(e.target.value);
@@ -625,6 +648,10 @@ const MedicineManagement = () => {
                           <Search className="h-4 w-4" />
                         </div>
                       </div>
+                    </div> */}
+                    <div>
+                      <label className="block text-sm font-bold mb-1.5 flex items-center gap-2"><Phone className="w-4 h-4 text-primary" /> Store Phone</label>
+                      <input {...register("store_phone_number")} placeholder="e.g. +91 987..." className="w-full px-4 py-2 rounded-lg border border-border bg-background" />
                     </div>
                   </div>
 

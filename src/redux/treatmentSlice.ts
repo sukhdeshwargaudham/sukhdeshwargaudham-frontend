@@ -21,6 +21,7 @@ interface Cow {
   id: string;
   token_no: string;
   caller_of_rescue: string;
+  symptoms?: string;
 }
 
 interface TreatmentState {
@@ -59,7 +60,7 @@ export const fetchCows = createAsyncThunk("treatment/fetchCows", async (_, { rej
 
 export const addTreatment = createAsyncThunk("treatment/addTreatment", async (data: any, { rejectWithValue }) => {
   try {
-    const response = await api.post("/medical/", data);
+    const response = await api.post("/medical/treatment/", data);
     return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || "Failed to add treatment");
@@ -68,7 +69,7 @@ export const addTreatment = createAsyncThunk("treatment/addTreatment", async (da
 
 export const updateTreatment = createAsyncThunk("treatment/updateTreatment", async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
   try {
-    const response = await api.put(`/medical/${id}/`, data);
+    const response = await api.put(`/medical/treatment/${id}/`, data);
     return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || "Failed to update treatment");
@@ -77,7 +78,7 @@ export const updateTreatment = createAsyncThunk("treatment/updateTreatment", asy
 
 export const deleteTreatment = createAsyncThunk("treatment/deleteTreatment", async (id: string, { rejectWithValue }) => {
   try {
-    await api.delete(`/medical/${id}/`);
+    await api.delete(`/medical/treatment/${id}/`);
     return id;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || "Failed to delete treatment");
