@@ -396,4 +396,4 @@ const MedicineUsagePage: React.FC = () => {
   );
 };
 
-export default MedicineUsagePage;
+export default MedicineUsagePage; 
