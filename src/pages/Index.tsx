@@ -87,26 +87,26 @@ const Index = () => {
   const handleSendWish = async (person: any) => {
     setIsWishing(person.id);
     try {
-      const wishMessage = `સુખડેશ્વર ગૌ ધામ
-
-🌻 ગૌ સેવા🌻
+      // Birthday body goes into template {{2}}.
+      // Template already provides: "નમસ્કાર {{1}}," header and footer.
+      // {{1}} = person.name, {{2}} = wishMessage below
+      const wishMessage = `🌻 ગૌ સેવા🌻
 
 🌸 જય શ્રી કૃષ્ણ 🌸
-💐 આજના શુભ દિવસે ${person.name}ને જન્મદિવસની હાર્દિક શુભેચ્છાઓ 💐
- ભગવાન શ્રી કૃષ્ણ અને ગૌમાતા આપને સદાય સુખ, શાંતિ, આરોગ્ય અને સમૃદ્ધિ આપે તેવી હાર્દિક પ્રાર્થના.🙏
-                 
+💐 આજના શુભ દિવસે જન્મદિવસની હાર્દિક શુભેચ્છાઓ 💐
+ભગવાન શ્રી કૃષ્ણ અને ગૌમાતા આપને સદાય સુખ, શાંતિ, આરોગ્ય અને સમૃદ્ધિ આપે તેવી હાર્દિક પ્રાર્થના.🙏
+
 શ્રી જલારામ ગૌ સેવા ટ્રસ્ટ ગાંધીનગર ને સર્વે મનોકામના પૂર્ણ કર ગૌમાતા ની અપાર કૃપા બની રહે તેવી ગૌમાતા ને હૃદયપુર્વક પ્રાર્થના. 🙏
 
 🌻  જય ગૌમાતા  🌻
 🌻  જય ગોપાલ   🌻
 🌻 જય જલારામ 🌻
-🛕  જય શ્રી રામ   🛕
-
-શ્રી જલારામ ગૌ સેવા ટ્રસ્ટ ગાંધીનગર`;
+🛕  જય શ્રી રામ   🛕`;
 
       await api.post('/management/send-campaign/', {
         target: 'specific',
         message: wishMessage,
+        recipient_name: person.name,
         specific_ids: [person.id]
       });
       toast.success(`WhatsApp Birthday wish sent to ${person.name}!`);
@@ -191,7 +191,7 @@ const Index = () => {
             ))}
           </div>
 
-          {birthdays.length > 0 && (
+          {/*{birthdays.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -230,7 +230,7 @@ const Index = () => {
             <div className="card-elevated p-8 text-center border-2 border-dashed border-border bg-muted/5 rounded-2xl">
               <p className="text-muted-foreground font-medium italic">No birthdays today.</p>
             </div>
-          )}
+          )}*/}
         </div>
       </Layout>
     );

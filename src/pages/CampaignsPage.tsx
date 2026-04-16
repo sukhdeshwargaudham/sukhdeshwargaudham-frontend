@@ -17,6 +17,7 @@ const CampaignsPage = () => {
 
   const [target, setTarget] = useState<"donors" | "visitors" | "both" | "specific">("both");
   const [message, setMessage] = useState("");
+  const [recipientName, setRecipientName] = useState("ગૌ ભક્ત");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -77,6 +78,7 @@ const CampaignsPage = () => {
       const formData = new FormData();
       formData.append("target", target);
       formData.append("message", message);
+      formData.append("recipient_name", recipientName || "ગૌ ભક્ત");
       formData.append("specific_ids", JSON.stringify(selectedIds));
       if (imageFile) {
         formData.append("image", imageFile);
@@ -91,6 +93,7 @@ const CampaignsPage = () => {
       toast.success(response.data.message || "Messages sent successfully!");
       if (target === "specific") setSelectedIds([]);
       setMessage("");
+      setRecipientName("ગૌ ભક્ત");
       setImageFile(null);
       setImagePreview(null);
     } catch (error: any) {
@@ -152,8 +155,26 @@ const CampaignsPage = () => {
                 </div>
 
                 <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Greeting Name <span className="text-muted-foreground font-normal text-xs">(appears as "નમસ્કાર __, " in the template)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={recipientName}
+                    onChange={(e) => setRecipientName(e.target.value)}
+                    placeholder="e.g. ગૌ ભક્ત"
+                    className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                  />
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    This fills <code className="bg-muted px-1 rounded">{"{{1}}"}</code> in the approved template. Default: <strong>ગૌ ભક્ત</strong>
+                  </p>
+                </div>
+
+                <div>
                   <div className="flex justify-between items-center mb-1">
-                    <label className="block text-sm font-medium">Message Content</label>
+                    <label className="block text-sm font-medium">
+                      Message Content <span className="text-muted-foreground font-normal text-xs">(fills {"{{2}}"} in template)</span>
+                    </label>
                     <span className={`text-xs font-medium ${message.length > 1000 ? 'text-destructive' : 'text-muted-foreground'}`}>
                       {message.length}/1000
                     </span>
@@ -169,12 +190,12 @@ const CampaignsPage = () => {
                   <div className="mt-2 p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900 rounded-lg space-y-2">
                     <p className="text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 font-medium">
                       <AlertCircle className="w-3.5 h-3.5" />
-                      WhatsApp Message Info:
+                      Template Structure (gau_dham_campaign):
                     </p>
                     <ul className="text-[11px] text-emerald-700/80 dark:text-emerald-400 space-y-1 list-disc pl-4">
-                      <li>Standard Fast2SMS WhatsApp rates apply.</li>
-                      <li>Regional languages and Emojis are fully supported.</li>
-                      <li>Rich text and longer messages are allowed.</li>
+                      <li><strong>{"{{1}}"}</strong> = Greeting Name (field above)</li>
+                      <li><strong>{"{{2}}"}</strong> = Message Content (text area above)</li>
+                      <li>Footer "સુખડેશ્વર ગૌ ધામ હોસ્પિટલ" is added automatically by the template.</li>
                     </ul>
                   </div>
                 </div>
