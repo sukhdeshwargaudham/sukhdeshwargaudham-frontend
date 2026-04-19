@@ -87,7 +87,7 @@ const TreatmentPage = () => {
         const selectedCow = cows.find(c => String(c.id) === String(selectedCowId) || c.token_no.toLowerCase() === String(selectedCowId).toLowerCase());
         if (selectedCow && selectedCow.symptoms) {
           setValue("symptoms", selectedCow.symptoms);
-          setSelectedMedicines([]); // No medicines yet for new cows
+          // Do NOT reset medicines here — user may have already added some
         }
       }
     }
@@ -173,13 +173,20 @@ const TreatmentPage = () => {
       cowPayload = { cow: data.cow };
     }
 
+    // Auto-add any medicine that was typed but not yet confirmed with Enter/+
+    let finalMedicines = [...selectedMedicines];
+    const pendingMed = medicineInput.trim();
+    if (pendingMed && !finalMedicines.includes(pendingMed)) {
+      finalMedicines = [...finalMedicines, pendingMed];
+    }
+
     // Destructure `cow` out so it is never accidentally sent as a raw string.
     // cowPayload is the sole authority: it has either { cow: pkId } or { cow_token_no_input: token }.
     const { cow: _discardedCow, ...restData } = data;
     const formattedData = {
       ...restData,
       ...cowPayload,
-      medicine: selectedMedicines.join("; ")
+      medicine: finalMedicines.join("; ")
     };
     if (editingTreatment) {
       dispatch(updateTreatment({ id: editingTreatment.id, data: formattedData }));

@@ -7,7 +7,7 @@ import Layout from "@/components/Layout";
 import PageBanner from "@/components/PageBanner";
 import api from "@/redux/api";
 import { toast } from "sonner";
-import { MessageSquare, Send, Users, CheckSquare, Square, Smartphone, AlertCircle, Image as ImageIcon, X } from "lucide-react";
+import { MessageSquare, Send, Users, CheckSquare, Square, Smartphone, AlertCircle, Image as ImageIcon, X, Upload } from "lucide-react";
 import img5 from "@/assets/image5.png";
 
 const CampaignsPage = () => {
@@ -17,7 +17,6 @@ const CampaignsPage = () => {
 
   const [target, setTarget] = useState<"donors" | "visitors" | "both" | "specific">("both");
   const [message, setMessage] = useState("");
-  const [recipientName, setRecipientName] = useState("ગૌ ભક્ત");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isSending, setIsSending] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -34,12 +33,6 @@ const CampaignsPage = () => {
     } else {
       setSelectedIds([...selectedIds, id]);
     }
-  };
-
-  const hasEmoji = (text: string) => {
-    // Regex to detect Emojis
-    const emojiRegex = /(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/;
-    return emojiRegex.test(text);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,8 +53,12 @@ const CampaignsPage = () => {
   };
 
   const handleSend = async () => {
-    if (!message && !imageFile) {
-      toast.error("Message content or image is required.");
+    if (!imageFile) {
+      toast.error("Header image is required by the approved WhatsApp template.");
+      return;
+    }
+    if (!message.trim()) {
+      toast.error("Message content is required.");
       return;
     }
     if (message.length > 1000) {
@@ -78,22 +75,16 @@ const CampaignsPage = () => {
       const formData = new FormData();
       formData.append("target", target);
       formData.append("message", message);
-      formData.append("recipient_name", recipientName || "ગૌ ભક્ત");
       formData.append("specific_ids", JSON.stringify(selectedIds));
-      if (imageFile) {
-        formData.append("image", imageFile);
-      }
+      formData.append("image", imageFile);
 
       const response = await api.post("/management/send-campaign/", formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       toast.success(response.data.message || "Messages sent successfully!");
       if (target === "specific") setSelectedIds([]);
       setMessage("");
-      setRecipientName("ગૌ ભક્ત");
       setImageFile(null);
       setImagePreview(null);
     } catch (error: any) {
@@ -103,7 +94,7 @@ const CampaignsPage = () => {
     }
   };
 
-  // Combining list for specific view with deduplication by phone
+  // Combined deduplicated recipient list
   const rawList = [
     ...donors.map(d => ({ id: `donor_${d.id}`, name: d.name, type: 'Donor', phone: d.phone })),
     ...visitors.map(v => ({ id: `visitor_${v.id}`, name: v.name, type: 'Visitor', phone: v.phone }))
@@ -112,15 +103,11 @@ const CampaignsPage = () => {
   const deduplicatedMap = new Map();
   rawList.forEach(item => {
     let cleanPhone = item.phone.replace(/\D/g, '');
-    if (cleanPhone.length > 10) {
-      cleanPhone = cleanPhone.slice(-10);
-    }
-    // If phone already exists, prioritize 'Donor' type over 'Visitor'
+    if (cleanPhone.length > 10) cleanPhone = cleanPhone.slice(-10);
     if (!deduplicatedMap.has(cleanPhone) || item.type === 'Donor') {
       deduplicatedMap.set(cleanPhone, item);
     }
   });
-  
   const combinedList = Array.from(deduplicatedMap.values());
 
   return (
@@ -132,6 +119,7 @@ const CampaignsPage = () => {
       />
       <div className="container py-10 max-w-5xl">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* ── Compose panel ── */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -139,7 +127,8 @@ const CampaignsPage = () => {
                 Compose Message
               </h2>
 
-              <div className="space-y-4">
+              <div className="space-y-5">
+                {/* Target audience */}
                 <div>
                   <label className="block text-sm font-medium mb-1">Target Audience</label>
                   <select
@@ -147,33 +136,58 @@ const CampaignsPage = () => {
                     onChange={(e) => setTarget(e.target.value as any)}
                     className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
                   >
-                    <option value="both">Both Donors & Visitors</option>
+                    <option value="both">Both Donors &amp; Visitors</option>
                     <option value="donors">All Donors</option>
                     <option value="visitors">All Visitors</option>
                     <option value="specific">Select Specific People</option>
                   </select>
                 </div>
 
+                {/* Header Image — REQUIRED */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Greeting Name <span className="text-muted-foreground font-normal text-xs">(appears as "નમસ્કાર __, " in the template)</span>
+                  <label className="block text-sm font-medium mb-2 flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4 text-primary" />
+                    Header Image
+                    <span className="text-destructive font-bold">*</span>
+                    <span className="text-muted-foreground font-normal text-xs">(required by the approved template)</span>
                   </label>
-                  <input
-                    type="text"
-                    value={recipientName}
-                    onChange={(e) => setRecipientName(e.target.value)}
-                    placeholder="e.g. ગૌ ભક્ત"
-                    className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                  />
-                  <p className="text-[11px] text-muted-foreground mt-1">
-                    This fills <code className="bg-muted px-1 rounded">{"{{1}}"}</code> in the approved template. Default: <strong>ગૌ ભક્ત</strong>
-                  </p>
+                  {!imagePreview ? (
+                    <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-primary/40 border-dashed rounded-xl cursor-pointer bg-primary/5 hover:bg-primary/10 transition-colors">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <div className="p-3 bg-primary/10 rounded-full">
+                          <Upload className="w-6 h-6 text-primary" />
+                        </div>
+                        <p className="text-sm font-semibold text-primary">Click to upload header image</p>
+                        <p className="text-xs text-muted-foreground">PNG, JPG or WEBP • appears at top of message</p>
+                      </div>
+                      <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                    </label>
+                  ) : (
+                    <div className="relative inline-flex flex-col gap-1">
+                      <div className="relative border-2 border-primary/30 rounded-xl overflow-hidden shadow-sm">
+                        <img src={imagePreview} alt="Header preview" className="h-40 w-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                        <button
+                          onClick={removeImage}
+                          className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-1.5 shadow-md hover:bg-destructive/90 transition-colors"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <p className="text-xs text-emerald-600 font-medium flex items-center gap-1">
+                        ✓ Header image ready
+                      </p>
+                    </div>
+                  )}
                 </div>
 
+                {/* Message body — {{1}} */}
                 <div>
                   <div className="flex justify-between items-center mb-1">
                     <label className="block text-sm font-medium">
-                      Message Content <span className="text-muted-foreground font-normal text-xs">(fills {"{{2}}"} in template)</span>
+                      Message Body
+                      <span className="text-destructive font-bold ml-0.5">*</span>
+                      <span className="text-muted-foreground font-normal text-xs ml-1">(fills <code className="bg-muted px-1 rounded">{"{{1}}"}</code> in template)</span>
                     </label>
                     <span className={`text-xs font-medium ${message.length > 1000 ? 'text-destructive' : 'text-muted-foreground'}`}>
                       {message.length}/1000
@@ -182,61 +196,46 @@ const CampaignsPage = () => {
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Type your WhatsApp message here..."
-                    rows={6}
+                    placeholder="Type your message here (in Gujarati or English)..."
+                    rows={5}
                     maxLength={1000}
                     className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm resize-y"
-                  ></textarea>
-                  <div className="mt-2 p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900 rounded-lg space-y-2">
-                    <p className="text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 font-medium">
-                      <AlertCircle className="w-3.5 h-3.5" />
-                      Template Structure (gau_dham_campaign):
+                  />
+
+                  {/* Template info box */}
+                  <div className="mt-3 p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 rounded-lg space-y-2">
+                    <p className="text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 font-semibold">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      Approved Template: <code className="font-mono bg-emerald-100 dark:bg-emerald-900/50 px-1.5 rounded">gau_dham</code> · ID: 17526
                     </p>
-                    <ul className="text-[11px] text-emerald-700/80 dark:text-emerald-400 space-y-1 list-disc pl-4">
-                      <li><strong>{"{{1}}"}</strong> = Greeting Name (field above)</li>
-                      <li><strong>{"{{2}}"}</strong> = Message Content (text area above)</li>
-                      <li>Footer "સુખડેશ્વર ગૌ ધામ હોસ્પિટલ" is added automatically by the template.</li>
-                    </ul>
+                    <div className="bg-white dark:bg-black/30 rounded-lg p-3 border border-emerald-100 dark:border-emerald-900 text-sm space-y-1 font-medium">
+                      <p className="text-emerald-700 dark:text-emerald-300">📷 <span className="text-muted-foreground">[Header Image]</span></p>
+                      <p>સુખડેશ્વર ગૌ ધામ</p>
+                      <p className="text-primary font-bold">{"{{1}}"} <span className="text-xs font-normal text-muted-foreground">← your message</span></p>
+                      <p className="text-muted-foreground text-xs">શ્રી જળારામ ગૌ સેવા ટ્રસ્ટ, ગાંધીનગર</p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="pt-2">
-                  <label className="block text-sm font-medium mb-2">Attach Photo (Optional)</label>
-                  {!imagePreview ? (
-                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-input border-dashed rounded-lg cursor-pointer bg-muted/20 hover:bg-muted/50 transition-colors">
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <ImageIcon className="w-8 h-8 mb-2 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground"><span className="font-semibold">Click to upload photo</span> or drag and drop</p>
-                      </div>
-                      <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
-                    </label>
-                  ) : (
-                    <div className="relative inline-block border border-border rounded-lg p-1 bg-muted/20">
-                      <img src={imagePreview} alt="Preview" className="h-32 object-contain rounded-md" />
-                      <button onClick={removeImage} className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 shadow-md hover:bg-destructive/90">
-                        <X className="w-4 h-4"/>
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex justify-end pt-2">
+                {/* Send button */}
+                <div className="flex justify-end pt-1">
                   <button
                     onClick={handleSend}
-                    disabled={isSending}
-                    className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-50"
+                    disabled={isSending || !imageFile || !message.trim()}
+                    className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSending ? (
-                      <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
                     ) : (
                       <Send className="w-5 h-5" />
                     )}
-                    {isSending ? "Sending..." : "Send WhatsApp message"}
+                    {isSending ? "Sending..." : "Send WhatsApp Message"}
                   </button>
                 </div>
               </div>
             </div>
 
+            {/* Specific recipients table */}
             {target === "specific" && (
               <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden flex flex-col max-h-[600px]">
                 <div className="p-4 border-b border-border bg-muted/30 flex justify-between items-center">
@@ -275,7 +274,7 @@ const CampaignsPage = () => {
                               </span>
                             </td>
                           </tr>
-                        )
+                        );
                       })}
                       {combinedList.length === 0 && (
                         <tr>
@@ -289,33 +288,53 @@ const CampaignsPage = () => {
             )}
           </div>
 
+          {/* ── Preview panel ── */}
           <div className="space-y-6">
-            <div className="bg-card border border-border rounded-xl p-6 shadow-sm sticky top-24">
-              <h3 className="font-semibold flex justify-center items-center gap-2 mb-4">
-                <Smartphone className="w-5 h-5 text-emerald-500" /> WhatsApp Preview
+            <div className="bg-card border border-border rounded-xl p-5 shadow-sm sticky top-24">
+              <h3 className="font-semibold flex justify-center items-center gap-2 mb-4 text-sm">
+                <Smartphone className="w-4 h-4 text-emerald-500" /> WhatsApp Preview
               </h3>
-              <div className="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 h-[450px] flex flex-col relative overflow-hidden">
-                <div className="bg-white/80 dark:bg-black/80 backdrop-blur-sm px-4 py-2 text-center text-xs text-muted-foreground rounded-full mb-4 w-max mx-auto shadow-sm">
+
+              {/* Phone shell */}
+              <div className="bg-[#e5ddd5] dark:bg-[#1a1a1a] rounded-2xl p-3 min-h-[460px] flex flex-col gap-3 relative overflow-hidden">
+                <div className="bg-white/70 dark:bg-black/60 backdrop-blur-sm px-3 py-1.5 text-center text-[10px] text-muted-foreground rounded-full w-max mx-auto shadow-sm">
                   Today
                 </div>
-                {message ? (
-                  <div className="bg-emerald-500 text-white p-2 rounded-2xl rounded-tr-sm shadow-sm w-[85%] self-end break-words text-sm relative">
-                    {imagePreview && (
-                      <img src={imagePreview} alt="Attached message preview" className="w-full max-h-[200px] object-cover rounded-lg mb-2" />
-                    )}
-                    <div className="px-1 py-0.5 whitespace-pre-wrap">{message}</div>
-                    <span className="text-[10px] text-emerald-100 block text-right mt-1 pr-1">12:00 PM</span>
+
+                {/* Message bubble */}
+                <div className="bg-white dark:bg-[#202c33] rounded-2xl rounded-tr-sm shadow-md w-[92%] self-end overflow-hidden text-sm">
+                  {/* Header image slot */}
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="Header" className="w-full h-36 object-cover" />
+                  ) : (
+                    <div className="w-full h-28 bg-muted/50 flex flex-col items-center justify-center gap-1 border-b border-border">
+                      <ImageIcon className="w-6 h-6 text-muted-foreground/50" />
+                      <span className="text-[10px] text-muted-foreground/60">Header image required</span>
+                    </div>
+                  )}
+
+                  {/* Body */}
+                  <div className="px-3 py-2.5 space-y-1.5">
+                    <p className="font-bold text-foreground text-sm">સુખડેશ્વર ગૌ ધામ</p>
+                    <p className={`text-sm whitespace-pre-wrap break-words ${message ? 'text-foreground' : 'text-muted-foreground/50 italic text-xs'}`}>
+                      {message || "Your message will appear here…"}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground border-t border-border/50 pt-1.5">
+                      શ્રી જળારામ ગૌ સેવા ટ્રસ્ટ, ગાંધીનગર
+                    </p>
+                    <span className="text-[9px] text-muted-foreground/60 block text-right">12:00 PM ✓✓</span>
                   </div>
-                ) : ( imagePreview ? (
-                  <div className="bg-emerald-500 text-white p-2 rounded-2xl rounded-tr-sm shadow-sm w-[85%] self-end break-words text-sm relative">
-                    <img src={imagePreview} alt="Attached message preview" className="w-full max-h-[200px] object-cover rounded-lg" />
-                    <span className="text-[10px] text-emerald-100 block text-right mt-1 pr-1">12:00 PM</span>
-                  </div>
-                ) : (
-                  <div className="text-center text-muted-foreground text-sm mt-10">
-                    Type a message or attach a photo to preview
-                  </div>
-                ))}
+                </div>
+              </div>
+
+              {/* Validation summary */}
+              <div className="mt-3 space-y-1">
+                <div className={`flex items-center gap-2 text-xs font-medium ${imageFile ? 'text-emerald-600' : 'text-destructive'}`}>
+                  <span>{imageFile ? '✓' : '✗'}</span> Header image {imageFile ? 'ready' : 'missing (required)'}
+                </div>
+                <div className={`flex items-center gap-2 text-xs font-medium ${message.trim() ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+                  <span>{message.trim() ? '✓' : '○'}</span> Message body {message.trim() ? 'ready' : 'empty'}
+                </div>
               </div>
             </div>
           </div>

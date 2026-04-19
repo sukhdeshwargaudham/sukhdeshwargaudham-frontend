@@ -47,9 +47,9 @@ const App = () => (
           <Route path="/blog/:id" element={<BlogDetailPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
-         {/* <Route path="/register" element={<RegisterPage />} /> 
-         <Route path="/verify-otp" element={<VerifyOtpPage />} /> 
-         <Route path="/forgot-password" element={<ForgotPasswordPage />} />  */}
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-otp" element={<VerifyOtpPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/my-blogs" element={<ProtectedRoute allowedRoles={["admin", "member"]}><MemberBlogPage /></ProtectedRoute>} />
@@ -64,7 +64,7 @@ const App = () => (
           <Route path="/visitors" element={<ProtectedRoute allowedRoles={["admin", "doctor", "member"]}><VisitorsPage /></ProtectedRoute>} />
           <Route path="/donors" element={<ProtectedRoute allowedRoles={["admin", "doctor", "member"]}><DonorsPage /></ProtectedRoute>} />
           <Route path="/medical-settings" element={<ProtectedRoute allowedRoles={["admin", "doctor"]}><MedicalSettings /></ProtectedRoute>} />
-          {/* <Route path="/campaigns" element={<ProtectedRoute allowedRoles={["admin", "doctor", "member"]}><CampaignsPage /></ProtectedRoute>} /> */}
+          <Route path="/campaigns" element={<ProtectedRoute allowedRoles={["admin", "doctor", "member"]}><CampaignsPage /></ProtectedRoute>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
