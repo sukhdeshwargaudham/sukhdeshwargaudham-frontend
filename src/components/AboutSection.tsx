@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { Shield, Heart, Users, Leaf } from "lucide-react";
+
 import logo from "@/assets/logo.jpg";
 
 const features = [
